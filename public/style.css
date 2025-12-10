@@ -1,0 +1,509 @@
+/* =========================================
+   1. VARIÁVEIS & DESIGN SYSTEM
+   ========================================= */
+:root {
+    /* Paleta de Cores Moderna (Indigo & Violeta) */
+    --primary-gradient: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    --primary-gradient-votacao: linear-gradient(135deg, #78f163 0%, #4f46e5 100%);
+    --primary-color: #4f46e5;
+    --secondary-color: #64748b;
+    
+    /* Cores de Estado */
+    --success-color: #10b981; /* Esmeralda */
+    --danger-color: #ef4444;  /* Vermelho vibrante */
+    --warning-color: #f59e0b; /* Âmbar */
+    
+    /* Fundos e Superfícies */
+    --bg-body: #f3f4f6;
+    --bg-card: #ffffff;
+    --bg-input: #f9fafb;
+    
+    /* Texto */
+    --text-main: #111827;
+    --text-muted: #6b7280;
+    
+    /* Estilos */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 20px;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    
+    --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* =========================================
+   2. RESET & BASE
+   ========================================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--bg-body);
+    color: var(--text-main);
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+    background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+    background-size: 20px 20px; /* Textura sutil de pontos */
+}
+
+/* =========================================
+   3. CONTAINERS & ESTRUTURA
+   ========================================= */
+.container, 
+.admin-panel, 
+#admin-content {
+    width: 100%;
+    max-width: 700px; /* Mais estreito para leitura melhor */
+    background: var(--bg-card);
+    padding: 2.5rem;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    margin: 0 auto;
+    animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Header Bonito */
+header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    position: relative;
+}
+
+h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    color:  var(--primary-gradient);
+    -webkit-background-clip: text;
+    /* -webkit-text-fill-color: transparent; */
+    margin-bottom: 0.5rem;
+}
+
+h2 {
+    font-size: 1.5rem;
+    color: var(--text-main);
+    margin: 2rem 0 1rem;
+    border-left: 5px solid var(--primary-color);
+    padding-left: 15px;
+}
+
+h3 {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+/* =========================================
+   4. INPUTS & FORMULÁRIOS
+   ========================================= */
+input, select {
+    width: 100%;
+    padding: 14px 16px;
+    margin-bottom: 15px;
+    border: 2px solid transparent;
+    background-color: var(--bg-input);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    color: var(--text-main);
+    transition: all 0.3s ease;
+}
+
+input:focus, select:focus {
+    outline: none;
+    background-color: #fff;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
+.row {
+    display: flex;
+    gap: 15px;
+}
+
+/* Input File Customizado */
+input[type="file"] {
+    padding: 10px;
+    border: 1px dashed #cbd5e1;
+    cursor: pointer;
+}
+
+/* =========================================
+   5. BOTÕES (Design Moderno)
+   ========================================= */
+button, .btn-back, .btn-votar {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+    background: var(--primary-gradient);
+    color: white;
+    box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.3);
+}
+
+button:hover, .btn-back:hover, .btn-votar:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+/* Botões Variantes */
+.votacao { background: var(--success-color); box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3); }
+.btn-back { background: var(--secondary-color); box-shadow: none; margin-top: 20px; }
+.buttonAddCandidate { background: var(--text-main); }
+
+/* Botões Pequenos (Admin) */
+button.small-action {
+    width: 36px; 
+    height: 36px;
+    padding: 0;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    margin-left: 8px;
+    box-shadow: none;
+}
+
+/* =========================================
+   6. TIMER & COUNTDOWN (Estilo "Pílula")
+   ========================================= */
+.timer-banner {
+    background: #fff;
+    color: var(--danger-color);
+    border: 2px solid var(--danger-color);
+    padding: 10px 20px;
+    border-radius: 50px;
+    font-weight: 700;
+    text-align: center;
+    display: inline-block;
+    margin-bottom: 2rem;
+    font-variant-numeric: tabular-nums; /* Números não pulam */
+    box-shadow: 0 4px 10px rgba(239, 68, 68, 0.15);
+    animation: pulse 2s infinite;
+}
+
+.timer-container { /* Para centralizar a div do timer */
+    text-align: center;
+    width: 100%;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+    70% { transform: scale(1.02); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+/* =========================================
+   7. GRID DE CANDIDATOS (Votação)
+   ========================================= */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 25px;
+    margin-top: 30px;
+}
+
+.card {
+    background: #fff;
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    text-align: center;
+    border: 1px solid #e5e7eb;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.card:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-lg);
+}
+
+.photo-container {
+    margin-bottom: 15px;
+    position: relative;
+}
+
+.photo-container img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #f3f4f6;
+    transition: border-color 0.3s;
+}
+
+.card:hover .photo-container img {
+    border-color: var(--primary-color);
+}
+
+.card h3 {
+    color: var(--text-main);
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+}
+
+/* =========================================
+   8. RESULTADOS (Barras de Progresso)
+   ========================================= */
+.history-control {
+    background: var(--bg-input);
+    padding: 20px;
+    border-radius: var(--radius-md);
+    margin-bottom: 30px;
+}
+
+.result-card {
+    background: #fff;
+    border: 1px solid #f3f4f6;
+    border-radius: var(--radius-md);
+    padding: 15px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.2s;
+}
+
+.result-card:hover {
+    transform: scale(1.01);
+}
+
+/* Vencedor */
+.result-card.winner {
+    border: 2px solid var(--warning-color);
+    background: linear-gradient(to right, #fff, #fffbeb);
+    position: relative;
+}
+
+.rank {
+    font-size: 1.2rem;
+    font-weight: 900;
+    color: #9ca3af;
+    width: 40px;
+}
+
+.mini-photo {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 15px;
+    box-shadow: var(--shadow-sm);
+}
+
+.info {
+    flex: 1;
+}
+
+.progress-bg {
+    background: #e5e7eb;
+    border-radius: 100px;
+    height: 12px;
+    width: 100%;
+    margin: 8px 0;
+    overflow: hidden;
+}
+
+.progress-bar {
+    background: var(--primary-gradient);
+    height: 100%;
+    border-radius: 100px;
+    transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 0; /* Esconde texto dentro da barra fina */
+}
+
+.winner .progress-bar {
+    background: linear-gradient(to right, #f59e0b, #fbbf24);
+}
+
+.stats {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    display: flex;
+    justify-content: space-between;
+}
+
+/* =========================================
+   9. LISTA DO ADMIN
+   ========================================= */
+.list-item {
+    background: #fff;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: var(--radius-md);
+    border: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.admin-thumb {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.status-badge {
+    background: #e5e7eb;
+    color: #374151;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-left: 10px;
+}
+
+/* =========================================
+   10. MOBILE / RESPONSIVO
+   ========================================= */
+@media (max-width: 600px) {
+    body { padding: 10px; }
+    .container { padding: 1.5rem; }
+    
+    h1 { font-size: 1.75rem; }
+    
+    .list-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .list-item > div:last-child {
+        width: 100%;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .row { flex-direction: column; gap: 0; }
+}
+
+.buttonHistory {
+    background-color: #007BFF;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1em;
+    cursor: pointer;
+    margin-top: 20px;  
+    transition: background-color 0.3s ease;
+}
+
+.buttonHistory:hover {
+    background-color: #0056b3;
+}
+
+
+.result-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+.rank {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #7f8c8d;
+    width: 30px;
+}
+.mini-photo {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #eee;
+}
+.info { flex-grow: 1; }
+.name { font-weight: bold; font-size: 1.1em; margin-bottom: 5px; }
+
+/* Barras de Progresso */
+.progress-bg {
+    background-color: #ecf0f1;
+    border-radius: 10px;
+    height: 20px;
+    width: 100%;
+    overflow: hidden;
+}
+.progress-bar {
+    height: 100%;
+    background-color: #3498db;
+    text-align: right;
+    padding-right: 10px;
+    color: white;
+    font-size: 0.8em;
+    line-height: 20px;
+    font-weight: bold;
+    transition: width 1s ease-in-out;
+    width: 0%;
+}
+.winner .progress-bar { background-color: #2ecc71; }
+
+.stats { font-size: 0.9em; color: #7f8c8d; margin-top: 5px; }
+
+/* Estilo do Seletor de Histórico */
+.history-control {
+    background: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+select {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #bdc3c7;
+    font-size: 1rem;
+    width: 100%;
+    max-width: 400px;
+}
+.btn-back {
+    margin-top: 20px;
+    background-color: #95a5a6;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+}

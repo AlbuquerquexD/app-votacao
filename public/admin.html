@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Admin</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+</head>
+<body>
+    <div id="admin-content" class="admin-panel" style="display: none;">
+        <h1>Painel Administrativo</h1>
+        
+        <div class="section">
+            <h2>🆕 Iniciar Nova Votação</h2>
+            <input type="text" id="newTitle" placeholder="Título da Votação">
+            
+            <div class="row">
+                <input type="number" id="newDuration" placeholder="Duração em minutos (ex: 20)" value="20">
+                </div>
+            
+            <button onclick="startNewCycle()">CRIAR VOTAÇÃO</button>
+            <p>*Isso encerrará qualquer votação aberta automaticamente.</p>
+        </div>
+
+        <div class="section" id="active-section" style="display:none;">
+            <h2>🟢 Votação Ativa: <span id="activeTitle"></span></h2>
+            <p>Encerra em: <b id="activeEndTime"></b></p>
+            
+            <h3>Adicionar Candidato</h3>
+            <div class="row">
+                <input type="text" id="candName" placeholder="Nome do Candidato">
+                <input type="file" id="candPhoto" accept="image/*">
+            </div>
+            <button onclick="addCandidate()">Adicionar</button>
+
+            <h3>Candidatos Atuais</h3>
+            <div id="activeList"></div>
+        </div>
+
+        <div class="section">
+            <h2>📜 Histórico de Votações</h2>
+            <div id="historyList"></div>
+        </div>
+    </div>
+
+    <script>
+        let sessionPassword = ''; // A senha ficará salva aqui após o login
+
+        // --- FUNÇÃO DE LOGIN AO CARREGAR ---
+        async function requestLogin() {
+            const { value: password } = await Swal.fire({
+                title: 'Acesso Restrito',
+                input: 'password',
+                inputLabel: 'Digite a senha de administrador',
+                inputPlaceholder: 'Senha',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                confirmButtonText: 'Entrar',
+                showLoaderOnConfirm: true,
+                preConfirm: async (pass) => {
+                    try {
+                        const response = await fetch('/api/admin/login', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ password: pass })
+                        });
+                        if (!response.ok) throw new Error(response.statusText);
+                        return pass;
+                    } catch (error) {
+                        Swal.showValidationMessage(`Senha incorreta!`);
+                    }
+                }
+            });
+
+            if (password) {
+                sessionPassword = password; // Salva a senha na memória
+                document.getElementById('admin-content').style.display = 'block'; // Mostra o painel
+                loadAdmin(); // Carrega os dados
+                
+                const Toast = Swal.mixin({
+                    toast: true, position: 'top-end', showConfirmButton: false, timer: 3000
+                });
+                Toast.fire({ icon: 'success', title: 'Login realizado com sucesso' });
+            }
+        }
+
+        async function loadAdmin() {
+            const res = await fetch('/api/admin/data');
+            const data = await res.json();
+            
+            const activeSec = document.getElementById('active-section');
+            const activeList = document.getElementById('activeList');
+            const historyList = document.getElementById('historyList');
+
+            // Renderiza Ativa
+            if (data.active) {
+                activeSec.style.display = 'block';
+                document.getElementById('activeTitle').innerText = data.active.title;
+                document.getElementById('activeEndTime').innerText = new Date(data.active.end_time).toLocaleString();
+                
+                activeList.innerHTML = data.active.candidates.map(c => `
+                    <div class="list-item">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <img src="${c.photo}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
+                            <span>${c.name}</span>
+                            <strong>(${c.votes} votos)</strong>
+                        </div>
+                        <div>
+                            <button onclick="editCandidate(${c.id}, '${c.name.replace(/'/g, "\\'")}')" style="width:auto; background:#f1c40f; color:white; padding:5px 10px; margin-right:5px;">✏️</button>
+                            <button onclick="deleteCandidate(${c.id})" style="width:auto; background:red; color:white; padding:5px 10px;">X</button>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                activeSec.style.display = 'none';
+            }
+
+            // Renderiza Histórico
+            historyList.innerHTML = data.history.map(h => `
+                <div class="list-item">
+                    <div style="cursor:pointer; flex-grow: 1;" onclick="viewHistory(${h.id}, '${h.title}')">
+                        <span>${h.title}</span>
+                        <span class="status-badge status-closed">Encerrada</span>
+                    </div>
+                    
+                    <button onclick="deleteElection(${h.id})" style="width:auto; background:#c0392b; color:white; padding:5px 10px; margin-left: 10px;" title="Excluir Eleição">
+                        🗑️
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        async function startNewCycle() {
+            const title = document.getElementById('newTitle').value;
+            const minutes = document.getElementById('newDuration').value;
+            // Usa a sessionPassword
+
+            if (!title) return Swal.fire('Erro', 'Digite um título', 'error');
+
+            const res = await fetch('/api/admin/new-cycle', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ title, minutes, password: sessionPassword })
+            });
+
+            if (res.ok) {
+                Swal.fire('Sucesso', 'Nova votação iniciada!', 'success').then(() => location.reload());
+            } else {
+                Swal.fire('Erro', 'Erro ao criar votação', 'error');
+            }
+        }
+
+        async function deleteElection(id) {
+            const result = await Swal.fire({
+                title: 'Tem certeza?',
+                text: "Isso apagará a eleição, os candidatos e todos os votos dela permanentemente!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sim, excluir tudo!'
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    const res = await fetch('/api/admin/election/delete', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ id, password: sessionPassword })
+                    });
+
+                    if (res.ok) {
+                        Swal.fire('Excluído!', 'A eleição foi removida.', 'success');
+                        loadAdmin(); // Recarrega a lista
+                    } else {
+                        Swal.fire('Erro', 'Não foi possível excluir.', 'error');
+                    }
+                } catch (error) {
+                    Swal.fire('Erro', 'Falha na conexão.', 'error');
+                }
+            }
+        }
+
+        async function editCandidate(id, currentName) {
+            const { value: formValues } = await Swal.fire({
+                title: 'Editar Candidato',
+                html:
+                    `<label>Nome:</label>` +
+                    `<input id="swal-input-name" class="swal2-input" value="${currentName}">` +
+                    `<br><br><label>Trocar Foto (Opcional):</label>` +
+                    `<input type="file" id="swal-input-photo" class="swal2-file" accept="image/*">`,
+                focusConfirm: false,
+                showCancelButton: true,
+                confirmButtonText: 'Salvar',
+                preConfirm: () => {
+                    return {
+                        name: document.getElementById('swal-input-name').value,
+                        photo: document.getElementById('swal-input-photo').files[0]
+                    }
+                }
+            });
+
+            if (formValues) {
+                const formData = new FormData();
+                formData.append('id', id);
+                formData.append('name', formValues.name);
+                formData.append('password', sessionPassword); // Usa a senha da sessão
+                if (formValues.photo) {
+                    formData.append('photo', formValues.photo);
+                }
+
+                const res = await fetch('/api/admin/candidate/edit', { method: 'POST', body: formData });
+                if (res.ok) {
+                    Swal.fire('Sucesso', 'Atualizado!', 'success');
+                    loadAdmin();
+                } else {
+                    Swal.fire('Erro', 'Falha ao editar', 'error');
+                }
+            }
+        }
+
+        async function addCandidate() {
+            const name = document.getElementById('candName').value;
+            const photo = document.getElementById('candPhoto').files[0];
+            
+            if(!name) return Swal.fire('Erro', 'Nome obrigatório', 'error');
+
+            const formData = new FormData();
+            formData.append('name', name);
+            formData.append('password', sessionPassword); // Usa a senha da sessão
+            if (photo) formData.append('photo', photo);
+
+            const res = await fetch('/api/admin/add', { method: 'POST', body: formData });
+            if (res.ok) {
+                document.getElementById('candName').value = ''; // Limpa campo
+                document.getElementById('candPhoto').value = ''; // Limpa campo
+                loadAdmin();
+            }
+        }
+
+        async function deleteCandidate(id) {
+            if(!confirm('Remover candidato?')) return;
+            await fetch('/api/admin/candidate/delete', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ id, password: sessionPassword })
+            });
+            loadAdmin();
+        }
+
+        async function viewHistory(id, title) {
+            const res = await fetch(`/api/admin/history/${id}`);
+            const candidates = await res.json();
+            
+            let html = `<ul style="text-align:left;">`;
+            candidates.forEach(c => {
+                html += `<li><b>${c.name}</b>: ${c.votes} votos</li>`;
+            });
+            html += `</ul>`;
+
+            Swal.fire({ title: `Resultado: ${title}`, html: html });
+        }
+
+        // Inicia pedindo login
+        requestLogin();
+    </script>
+</body>
+</html>

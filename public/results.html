@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultados e Histórico</title>
+    <link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Resultados</h1>
+            
+            <div class="history-control">
+                <label for="history-select">Visualizar Eleição:</label><br>
+                <select id="history-select" onchange="changeView()">
+                    <option value="active">🔴 Carregando...</option>
+                </select>
+            </div>
+
+            <h2 id="election-title">...</h2>
+            <p id="total-votes-display">...</p>
+        </header>
+
+        <div id="results-list"></div>
+        
+        <a href="/" class="btn-back">⬅ Voltar para Início</a>
+    </div>
+    <script src="scripts\js-results.js"></script>
+</body>
+</html>

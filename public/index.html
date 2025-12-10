@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="20">
+    <title>Votação</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        .timer-banner {
+            background-color: #e67e22;
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            display: none;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <div id="timer-box" class="timer-banner">
+            ⏳ Encerra em: <span id="countdown">--:--:--</span>
+        </div>
+
+        <header>
+            <h1 id="page-title">Carregando...</h1>
+            <p id="page-subtitle">...</p>
+        </header>
+
+        <div id="candidates-grid" class="grid"></div>
+        
+        <div id="no-election" style="display:none; padding: 50px; font-size: 1.2em; color: #777; text-align: center;">
+            🚫 Nenhuma votação ativa no momento.
+            <button class="buttonHistory" onclick="window.location.href='results.html'">Historico</button>
+        </div>
+    </div>
+    <script src = "scripts\js-index.js"></script>
+</body>
+</html>
